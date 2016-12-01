@@ -63,6 +63,11 @@ Your Kraken.io API key.
 Your Kraken.io API secret.
 
 
+## To-do
+
+- Add image type conversion (https://kraken.io/docs/image-type-conversion)
+
+
 ## License
 
 Copyright © [Kyle Brumm](http://kylebrumm.com). Free to use on whatever and may be redistributed under the terms specified in the [license](LICENSE.md).
