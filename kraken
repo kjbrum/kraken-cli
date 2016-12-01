@@ -60,7 +60,7 @@ RESET=$(tput sgr0);
 [[ -z $KRAKEN_SECRET ]] && KRAKEN_SECRET=''
 
 # Variables
-CALLBACK=false
+CALLBACK=''
 DEV=false
 FILE=''
 LOSSY=false
@@ -175,6 +175,7 @@ printf "    Enable wait               = ${WAIT}\n"
 printf "    Enable WebP format        = ${WEBP}\n"
 printf "\n"
 
+
 # Make the curl request
 data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "dev": '$DEV', "wait":'$WAIT', "url": "'$URL'", "callback_url": "'$CALLBACK'", "lossy": '$LOSSY', "quality": '$QUALITY', "resize": '$RESIZE', "webp": '$WEBP', "sampling_scheme": "'$SAMPLING'", "auto_orient": '$ORIENT'}'
 if [[ "$FILE" ]]; then
@@ -187,7 +188,7 @@ fi
 printf "${GREEN}==> Results:${WHITE}\n"
 
 # Check if we are posting to a callback URL
-if [[ $CALLBACK != 'false' ]]; then
+if [[ $CALLBACK != '' ]]; then
     # echo $response | jq
     response_id=$(echo $response | jq '.id' | xargs)
     printf "    Images posted to ${CALLBACK}\n"
