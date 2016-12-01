@@ -1,0 +1,261 @@
+#!/usr/bin/env bash
+
+# Kraken CLI
+# Optimize images with the Kraken.io API.
+#
+# Copyright (C) Kyle Brumm <http://kylebrumm.com>
+
+# Display the help text
+usage() {
+cat <<EOF
+
+Kraken CLI
+
+Optimize images with the Kraken.io API.
+
+Usage:
+    $ kraken <options>
+
+Options:
+    --callback=<url>            Callback URL for posting the response to
+    --dev                       Enable developer mode (false)
+    --file=<path/to/file>       Path to the file to upload and optimize
+    --help                      Display the help text
+    --lossy                     Enable lossy optimization (false)
+    --orient                    Enable lossless rotation of the image (false)
+    --quality=<integer>         Quality of the optimized image (1-100)
+    --resize=<json>             Resize or generate multiple sizes of the given image
+                                    - https://kraken.io/docs/image-resizing
+                                    - https://kraken.io/docs/generating-image-sets
+    --sampling=<subsampling>    Set a custom chroma subsampling for the optimization (4:2:0|4:2:2|4:4:4)
+    --status                    Query your account status
+    --url=<url>                 URL of the image you want to optimize
+    --webp                      Enable returning WebP format (false)
+
+Example:
+    $ kraken --url=http://example.com/image.jpg
+    $ kraken --url=http://example.com/image.jpg --lossy --quality=95
+    $ kraken --file=path/to/image.jpg --resize='{"size": 150, "strategy": "square"}'
+    $ kraken --file=path/to/image.jpg --lossy --quality=50 --webp
+
+EOF
+exit 0
+}
+
+# Check if help info should be displayed
+if [ "$1" = "-h" -o "$1" = "--help" -o -z "$1" ]; then
+    usage
+    exit 0
+fi
+
+# Colors
+RED=$(tput setaf 1);
+GREEN=$(tput setaf 2);
+YELLOW=$(tput setaf 3);
+WHITE=$(tput setaf 7);
+RESET=$(tput sgr0);
+
+# Credentials
+[[ -z $KRAKEN_KEY ]] && KRAKEN_KEY=''
+[[ -z $KRAKEN_SECRET ]] && KRAKEN_SECRET=''
+
+# Variables
+CALLBACK=false
+DEV=false
+FILE=''
+LOSSY=false
+ORIENT=false
+QUALITY='80'
+RESIZE=false
+SAMPLING='4:2:0'
+STATUS=false
+URL=''
+WAIT=true
+WEBP=false
+
+# Check if key and secret exist
+if [ -z "$KRAKEN_KEY" -o -z "$KRAKEN_SECRET" ]; then
+    printf "${RED}Error:${WHITE} Unknown API key/secret. Please check your credentials and try again. (https://kraken.io/account/api-credentials)\n\n"
+    exit 1
+fi
+
+# Parse the options
+for i in "$@"; do
+    case $i in
+        --callback=*)
+            CALLBACK="${i#*=}"
+            WAIT=false
+            shift
+            ;;
+        -d|--dev)
+            DEV=true
+            shift
+            ;;
+        --file=*)
+            FILE="${i#*=}"
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        -l|--lossy)
+            LOSSY=true
+            shift
+            ;;
+        -o|--orient)
+            ORIENT=true
+            shift
+            ;;
+        --quality=*)
+            QUALITY="${i#*=}"
+            shift
+            ;;
+        --resize=*)
+            RESIZE=${i#*=}
+            shift
+            ;;
+        --sampling=*)
+            SAMPLING="${i#*=}"
+            shift
+            ;;
+        -s|--status)
+            STATUS=true
+            shift
+            ;;
+        --url=*)
+            URL="${i#*=}"
+            shift
+            ;;
+        -w|--webp)
+            WEBP=true
+            shift
+            ;;
+        *)
+            printf "${RED}Error:${WHITE} Illegal task $i (see \"kraken --help\" for help)\n\n"
+            exit 1
+            ;;
+    esac
+done
+
+# Check if we need to display the users status
+if [[ $STATUS == 'true' ]]; then
+    status=$(curl -s https://api.kraken.io/user_status -X POST --form data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}}')
+
+    active=$(echo $status | jq -r '.active')
+    plan_name=$(echo $status | jq -r '.plan_name')
+    quota_total=$(echo $status | jq -r '.quota_total')
+    quota_used=$(echo $status | jq -r '.quota_used')
+    quota_remaining=$(echo $status | jq -r '.quota_remaining')
+
+    printf "\n"
+    printf "${GREEN}==> Account Status:${WHITE}\n"
+    printf "    Active          = ${active}\n"
+    printf "    Plan name       = ${plan_name}\n"
+    printf "    Quota total     = ${quota_total}\n"
+    printf "    Quota used      = ${quota_used}\n"
+    printf "    Quota remaining = ${quota_remaining}\n"
+    printf "\n"
+    exit 0
+fi
+
+# Display the config information
+printf "\n"
+printf "${GREEN}==> Config:${WHITE}\n"
+printf "    Callback URL              = ${CALLBACK}\n"
+printf "    Enable dev mode           = ${DEV}\n"
+printf "    Path to image file        = ${FILE}\n"
+printf "    Enable lossy optimization = ${LOSSY}\n"
+printf "    Enable auto orient        = ${ORIENT}\n"
+printf "    Image quality             = ${QUALITY}\n"
+printf "    Resize image              = ${RESIZE}\n"
+printf "    Sampling scheme           = ${SAMPLING}\n"
+printf "    Image URL                 = ${URL}\n"
+printf "    Enable wait               = ${WAIT}\n"
+printf "    Enable WebP format        = ${WEBP}\n"
+printf "\n"
+
+# Make the curl request
+data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "dev": '$DEV', "wait":'$WAIT', "url": "'$URL'", "callback_url": "'$CALLBACK'", "lossy": '$LOSSY', "quality": '$QUALITY', "resize": '$RESIZE', "webp": '$WEBP', "sampling_scheme": "'$SAMPLING'", "auto_orient": '$ORIENT'}'
+if [[ "$FILE" ]]; then
+    response=$(curl -s https://api.kraken.io/v1/upload -X POST --form data="$data" --form upload=@$FILE)
+else
+    response=$(curl -s https://api.kraken.io/v1/url -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "$data")
+fi
+
+# Start printing results
+printf "${GREEN}==> Results:${WHITE}\n"
+
+# Check if we are posting to a callback URL
+if [[ $CALLBACK != 'false' ]]; then
+    # echo $response | jq
+    response_id=$(echo $response | jq '.id' | xargs)
+    printf "    Images posted to ${CALLBACK}\n"
+    printf "    Response ID: ${response_id}\n"
+    printf "\n"
+    exit 0
+fi
+
+# Get the status of our request
+success=$(echo $response | jq '.success')
+
+# Check if the image was successfully optimized
+if [[ $success == 'true' ]]; then
+    if [[ $(echo $response | jq 'has("results")') == 'false' ]]; then
+        # Parse the response to get our info
+        kraked_url=$(echo $response | jq -r '.kraked_url')
+        if [[ $RESIZE == 'false' ]]; then
+            kraked_width=$(echo $response | jq -r '.original_width')
+            kraked_height=$(echo $response | jq -r '.original_height')
+        else
+            kraked_width=$(echo $response | jq -r '.kraked_width')
+            kraked_height=$(echo $response | jq -r '.kraked_height')
+        fi
+        original_size=$(($(echo $response | jq -r '.original_size')/1000))
+        kraked_size=$(($(echo $response | jq -r '.kraked_size')/1000))
+        kb_saved=$(($(echo $response | jq -r '.saved_bytes')/1000))
+
+        # Print the results
+        printf "    ${kraked_width}x${kraked_height}\n"
+        printf "    ${original_size} KB => ${kraked_size} KB | ${RED}-${kb_saved} KB${WHITE}\n"
+        printf "    ${kraked_url}\n\n"
+
+        # Copy kraked URL to the clipboard
+        echo "${kraked_url}" | tr -d '\n' | pbcopy
+    else
+        # Get the results
+        results=$(echo $response | jq -r '[.results[]]')
+
+        # Loop through the results
+        num=0
+        while [ 1 ]
+        do
+            if [[ $(echo $results | jq -r ".[$num]") == 'null' ]]; then
+                break
+            else
+                # Parse the response to get our info
+                kraked_url=$(echo $results | jq -r ".[$num].kraked_url")
+                kraked_width=$(echo $results | jq -r ".[$num].kraked_width")
+                kraked_height=$(echo $results | jq -r ".[$num].kraked_height")
+                original_size=$(($(echo $results | jq -r ".[$num].original_size")/1000))
+                kraked_size=$(($(echo $results | jq -r ".[$num].kraked_size")/1000))
+                kb_saved=$(($(echo $results | jq -r ".[$num].saved_bytes")/1000))
+
+                # Print the results
+                printf "    ${kraked_width}x${kraked_height}\n"
+                printf "    ${original_size} KB => ${kraked_size} KB | ${RED}-${kb_saved} KB${WHITE}\n"
+                printf "    ${kraked_url}\n\n"
+            fi
+
+            ((num++))
+        done
+    fi
+else
+    printf "${RED}Error:${WHITE} Unable to optimize your image. Please try again...\n"
+
+    if [[ "$response" ]]; then
+        echo $response | jq
+    fi
+fi
+
+printf "\n"
