@@ -66,6 +66,7 @@ Your Kraken.io API secret.
 ## To-do
 
 - Add image type conversion (https://kraken.io/docs/image-type-conversion)
+- Add preserving metadata (https://kraken.io/docs/preserving-metadata)
 
 
 ## License
