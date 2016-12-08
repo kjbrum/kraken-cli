@@ -18,6 +18,8 @@ Usage:
 
 Options:
     --callback=<url>            Callback URL for posting the response to
+    --convert=<json>            Convert your image to a different format
+                                    - https://kraken.io/docs/image-type-conversion
     --dev                       Enable developer mode (false)
     --file=<path/to/file>       Path to the file to upload and optimize
     --help                      Display the help text
@@ -34,8 +36,8 @@ Options:
     --webp                      Enable returning WebP format (false)
 
 Example:
-    $ kraken --url=http://example.com/image.jpg
-    $ kraken --url=http://example.com/image.jpg --lossy --quality=95
+    $ kraken --url=http://example.com/image.jpg --lossy --convert='{"format": "jpg", "background": "#ff0000"}'
+    $ kraken --url=http://example.com/image.jpg --meta='["profile", "date"]'
     $ kraken --file=path/to/image.jpg --resize='{"size": 150, "strategy": "square"}'
     $ kraken --file=path/to/image.jpg --lossy --quality=50 --webp
 
@@ -62,6 +64,7 @@ RESET=$(tput sgr0);
 
 # Variables
 CALLBACK=''
+CONVERT=false
 DEV=false
 FILE=''
 LOSSY=false
@@ -87,6 +90,10 @@ for i in "$@"; do
         --callback=*)
             CALLBACK="${i#*=}"
             WAIT=false
+            shift
+            ;;
+        --convert=*)
+            CONVERT=${i#*=}
             shift
             ;;
         -d|--dev)
@@ -169,11 +176,12 @@ fi
 printf "\n"
 printf "${GREEN}==> Config:${WHITE}\n"
 printf "    Callback URL              = ${CALLBACK}\n"
+printf "    Convert format            = ${CONVERT}\n"
 printf "    Enable dev mode           = ${DEV}\n"
 printf "    Path to image file        = ${FILE}\n"
 printf "    Enable lossy optimization = ${LOSSY}\n"
 printf "    Enable auto orient        = ${ORIENT}\n"
-printf "    Preserve Metadata         = ${META}\n"
+printf "    Preserve metadata         = ${META}\n"
 printf "    Image quality             = ${QUALITY}\n"
 printf "    Resize image              = ${RESIZE}\n"
 printf "    Sampling scheme           = ${SAMPLING}\n"
@@ -182,10 +190,8 @@ printf "    Enable wait               = ${WAIT}\n"
 printf "    Enable WebP format        = ${WEBP}\n"
 printf "\n"
 
-
 # Make the curl request
-# data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "dev": '$DEV', "wait":'$WAIT', "url": "'$URL'", "callback_url": "'$CALLBACK'", "lossy": '$LOSSY', "quality": '$QUALITY', "resize": '$RESIZE', "webp": '$WEBP', "sampling_scheme": "'$SAMPLING'", "auto_orient": '$ORIENT'}'
-data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": '$RESIZE', "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
+data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "convert": '$CONVERT', "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": '$RESIZE', "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
 if [[ "$FILE" ]]; then
     response=$(curl -s https://api.kraken.io/v1/upload -X POST --form data="$data" --form upload=@$FILE)
 else

@@ -28,6 +28,8 @@ Usage:
 
 Options:
     --callback=<url>            Callback URL for posting the response to
+    --convert=<json>            Convert your image to a different format
+                                    - https://kraken.io/docs/image-type-conversion
     --dev                       Enable developer mode (false)
     --file=<path/to/file>       Path to the file to upload and optimize
     --help                      Display the help text
@@ -44,7 +46,7 @@ Options:
     --webp                      Enable returning WebP format (false)
 
 Example:
-    $ kraken --url=http://example.com/image.jpg --lossy
+    $ kraken --url=http://example.com/image.jpg --lossy --convert='{"format": "jpg", "background": "#ff0000"}'
     $ kraken --url=http://example.com/image.jpg --meta='["profile", "date"]'
     $ kraken --file=path/to/image.jpg --resize='{"size": 150, "strategy": "square"}'
     $ kraken --file=path/to/image.jpg --lossy --quality=50 --webp
@@ -65,8 +67,6 @@ Your Kraken.io API secret.
 
 
 ## To-do
-
-- Add image type conversion (https://kraken.io/docs/image-type-conversion)
 
 
 ## License
