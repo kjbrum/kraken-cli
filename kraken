@@ -22,6 +22,7 @@ Options:
     --file=<path/to/file>       Path to the file to upload and optimize
     --help                      Display the help text
     --lossy                     Enable lossy optimization (false)
+    --meta=<array>              Preserve metadata of the image (profile|date|copyright|geotag|orientation)
     --orient                    Enable lossless rotation of the image (false)
     --quality=<integer>         Quality of the optimized image (1-100)
     --resize=<json>             Resize or generate multiple sizes of the given image
@@ -65,6 +66,7 @@ DEV=false
 FILE=''
 LOSSY=false
 ORIENT=false
+META=[]
 QUALITY='80'
 RESIZE=false
 SAMPLING='4:2:0'
@@ -101,6 +103,10 @@ for i in "$@"; do
             ;;
         -l|--lossy)
             LOSSY=true
+            shift
+            ;;
+        --meta=*)
+            META=${i#*=}
             shift
             ;;
         -o|--orient)
@@ -167,6 +173,7 @@ printf "    Enable dev mode           = ${DEV}\n"
 printf "    Path to image file        = ${FILE}\n"
 printf "    Enable lossy optimization = ${LOSSY}\n"
 printf "    Enable auto orient        = ${ORIENT}\n"
+printf "    Preserve Metadata         = ${META}\n"
 printf "    Image quality             = ${QUALITY}\n"
 printf "    Resize image              = ${RESIZE}\n"
 printf "    Sampling scheme           = ${SAMPLING}\n"
@@ -177,7 +184,8 @@ printf "\n"
 
 
 # Make the curl request
-data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "dev": '$DEV', "wait":'$WAIT', "url": "'$URL'", "callback_url": "'$CALLBACK'", "lossy": '$LOSSY', "quality": '$QUALITY', "resize": '$RESIZE', "webp": '$WEBP', "sampling_scheme": "'$SAMPLING'", "auto_orient": '$ORIENT'}'
+# data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "dev": '$DEV', "wait":'$WAIT', "url": "'$URL'", "callback_url": "'$CALLBACK'", "lossy": '$LOSSY', "quality": '$QUALITY', "resize": '$RESIZE', "webp": '$WEBP', "sampling_scheme": "'$SAMPLING'", "auto_orient": '$ORIENT'}'
+data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": '$RESIZE', "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
 if [[ "$FILE" ]]; then
     response=$(curl -s https://api.kraken.io/v1/upload -X POST --form data="$data" --form upload=@$FILE)
 else

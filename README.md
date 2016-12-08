@@ -32,6 +32,7 @@ Options:
     --file=<path/to/file>       Path to the file to upload and optimize
     --help                      Display the help text
     --lossy                     Enable lossy optimization (false)
+    --meta=<array>              Preserve metadata of the image (profile|date|copyright|geotag|orientation)
     --orient                    Enable lossless rotation of the image (false)
     --quality=<integer>         Quality of the optimized image (1-100)
     --resize=<json>             Resize or generate multiple sizes of the given image
@@ -43,8 +44,8 @@ Options:
     --webp                      Enable returning WebP format (false)
 
 Example:
-    $ kraken --url=http://example.com/image.jpg
-    $ kraken --url=http://example.com/image.jpg --lossy --quality=95
+    $ kraken --url=http://example.com/image.jpg --lossy
+    $ kraken --url=http://example.com/image.jpg --meta='["profile", "date"]'
     $ kraken --file=path/to/image.jpg --resize='{"size": 150, "strategy": "square"}'
     $ kraken --file=path/to/image.jpg --lossy --quality=50 --webp
 ```
@@ -66,7 +67,6 @@ Your Kraken.io API secret.
 ## To-do
 
 - Add image type conversion (https://kraken.io/docs/image-type-conversion)
-- Add preserving metadata (https://kraken.io/docs/preserving-metadata)
 
 
 ## License
