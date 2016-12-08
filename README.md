@@ -69,10 +69,10 @@ Your Kraken.io API secret.
 ## To-do
 
 - Add external storage options
-    - [] https://kraken.io/docs/storage-s3
-    - [] https://kraken.io/docs/storage-cloudfiles
-    - [] https://kraken.io/docs/storage-azure
-    - [] https://kraken.io/docs/storage-softlayer
+    - [ ] https://kraken.io/docs/storage-s3
+    - [ ] https://kraken.io/docs/storage-cloudfiles
+    - [ ] https://kraken.io/docs/storage-azure
+    - [ ] https://kraken.io/docs/storage-softlayer
 
 
 ## License
