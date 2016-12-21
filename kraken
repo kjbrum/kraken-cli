@@ -166,9 +166,9 @@ krak_the_image() {
 
     # Make the curl request
     if [[ "$CONVERT" ]]; then
-        data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "convert": '$CONVERT', "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": "'$RESIZE'", "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
+        data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "convert": '$CONVERT', "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": '$RESIZE', "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
     else
-        data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": "'$RESIZE'", "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
+        data='{"auth":{"api_key": "'$KRAKEN_KEY'", "api_secret": "'$KRAKEN_SECRET'"}, "auto_orient": '$ORIENT', "callback_url": "'$CALLBACK'", "dev": '$DEV', "lossy": '$LOSSY', "preserve_meta": '$META', "quality": '$QUALITY', "resize": '$RESIZE', "sampling_scheme": "'$SAMPLING'", "url": "'$URL'", "wait":'$WAIT', "webp": '$WEBP'}'
     fi
 
     # Make the curl request
