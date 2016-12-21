@@ -67,15 +67,6 @@ Your Kraken.io API key.
 Your Kraken.io API secret.
 
 
-## To-do
-
-- Add external storage options
-    - [ ] https://kraken.io/docs/storage-s3
-    - [ ] https://kraken.io/docs/storage-cloudfiles
-    - [ ] https://kraken.io/docs/storage-azure
-    - [ ] https://kraken.io/docs/storage-softlayer
-
-
 ## License
 
 Copyright © [Kyle Brumm](http://kylebrumm.com). Free to use on whatever and may be redistributed under the terms specified in the [license](LICENSE.md).
