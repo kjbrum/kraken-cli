@@ -49,7 +49,6 @@ exit 0
 # Check if help info should be displayed
 if [ "$1" = "-h" -o "$1" = "--help" -o -z "$1" ]; then
     usage
-    exit 0
 fi
 
 # Colors
@@ -113,7 +112,6 @@ for i in "$@"; do
             ;;
         -h|--help)
             usage
-            exit 0
             ;;
         -l|--lossy)
             LOSSY=true
