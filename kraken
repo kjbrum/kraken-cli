@@ -173,7 +173,7 @@ krak_the_image() {
     if [[ "$FILE" ]]; then
         RESPONSE=$(curl -s https://api.kraken.io/v1/upload -X POST --form data="$data" --form upload=@$FILE)
     else
-        RESPONSE=$(curl -s https://api.kraken.io/v1/url -X POST -H "Content-Type: application/json" -H "Accept: application/json" -d "$data")
+        RESPONSE=$(curl -s https://api.kraken.io/v1/url -X POST -H "Content-Type: application/json" -d "$data")
     fi
 }
 
